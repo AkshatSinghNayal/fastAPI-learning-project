@@ -15,20 +15,20 @@ def create_task(body: TaskSchema, db: Session):
 
     db.refresh(new_take) # refresh the new instance of the TaskModel from the database. This is done to ensure that the instance has all of its attributes populated with the latest data from the database, including any default values or auto-generated values that may have been set by the database when the instance was added to the session.
 
-    return {"message": "Task created successfully"}
+    return new_take 
 
 
 
 
 def get_tasks(db: Session):
     tasks = db.query(TaskModel).all()
-    return { "status": "success", "data": tasks }
+    return tasks
 
 def get_task_by_id( id : int , db : Session):
     task = db.query(TaskModel).filter(TaskModel.id == id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    return {"status": "success", "data": task}
+    return task
 
 
 def update_task(id: int, body: TaskSchema, db: Session):
@@ -44,7 +44,7 @@ def update_task(id: int, body: TaskSchema, db: Session):
     
     db.commit()  
     db.refresh(task) 
-    return {"message": "Task updated successfully"}
+    return task
 
 
 
@@ -56,4 +56,4 @@ def delete_by_id(id: int, db: Session):
 
     db.delete(task)
     db.commit()
-    return None
+    return None 
