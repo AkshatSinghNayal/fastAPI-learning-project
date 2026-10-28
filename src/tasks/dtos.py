@@ -14,6 +14,9 @@ class TaskResponseSchema(BaseModel):
     title: str
     description: str
     status: bool = False
+    user_id: int | None = 0  # int | None means that the user_id can be either an integer or None. This is useful when we want to return the model as a response from the API endpoint, as it allows Pydantic to automatically convert the ORM object to a Pydantic model.
 
     class Config:
         from_attributes = True
+
+        

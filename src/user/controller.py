@@ -4,7 +4,7 @@ from src.user.models import UserModel
 from fastapi import HTTPException,status,Request
 from pwdlib import PasswordHash
 from src.utils.settings import settings 
-from datetime import datetime, timedelta # datetime gives me the current time , timedelta is used to add some time
+from datetime import datetime, timedelta , timezone  # datetime gives me the current time , timedelta is used to add some time
 import jwt 
 
 PasswordHash = PasswordHash.recommended() # use of this is to create a password hash object that can be used to hash and verify passwords. The recommended() method returns an instance of the PasswordHash class that uses the recommended hashing algorithm (currently Argon2) and parameters for secure password hashing. This object can be used to hash passwords before storing them in the database and to verify passwords during login.
@@ -49,9 +49,14 @@ def login_user( body : loginSchema , db : Session):
     if not verify_password(body.password, is_user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED , detail="Invalid Password")
 
-    exp_time = datetime.now()+timedelta(minutes=settings.EXP_TIME)
+    exp_time = datetime.now(timezone.utc)+timedelta(minutes=settings.EXP_TIME)
+    sub = {
+        "_id" : is_user.id,
+        "username" : is_user.username,
+        "exp" : exp_time
+    }
 
-    token = jwt.encode({"_id": is_user.id, "username": is_user.username, "exp": exp_time}, settings.SECRET_KEY, settings.ALGORITHM)
+    token = jwt.encode(sub, settings.SECRET_KEY, settings.ALGORITHM)
 
     return {
         "token" : token

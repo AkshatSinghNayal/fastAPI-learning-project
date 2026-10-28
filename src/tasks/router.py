@@ -13,7 +13,7 @@ task_routes = APIRouter(prefix="/tasks")
 
 def create_task(body : TaskSchema , db : Session = Depends(get_db) , user : UserModel = Depends(is_authenticated)): 
     #the user parameter is used to get the authenticated user from the request. The is_authenticated function is a dependency that checks if the user is authenticated and returns the user object if they are. This allows us to associate the task with the authenticated user when creating it.
-    return controller.create_task(body,db) 
+    return controller.create_task(body,db,user) 
 
 @task_routes.get("/getAll", response_model=List[TaskResponseSchema], status_code=status.HTTP_200_OK) 
 def get_tasks(db : Session = Depends(get_db) , user : UserModel = Depends(is_authenticated)):
