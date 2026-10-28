@@ -17,7 +17,7 @@ def create_task(body : TaskSchema , db : Session = Depends(get_db) , user : User
 
 @task_routes.get("/getAll", response_model=List[TaskResponseSchema], status_code=status.HTTP_200_OK) 
 def get_tasks(db : Session = Depends(get_db) , user : UserModel = Depends(is_authenticated)):
-    return controller.get_tasks(db) #why return because we are calling the get_tasks function from the controller and passing the db session to it. The get_tasks function will return a dictionary with the status and data of the tasks, which will be returned as the response of the API endpoint.
+    return controller.get_tasks(db,user) #why return because we are calling the get_tasks function from the controller and passing the db session to it. The get_tasks function will return a dictionary with the status and data of the tasks, which will be returned as the response of the API endpoint.
 
 @task_routes.get("/getById/{id}" , response_model=TaskResponseSchema, status_code=status.HTTP_200_OK) 
 def get_task_by_id(id : int , db = Depends(get_db)):
@@ -26,10 +26,10 @@ def get_task_by_id(id : int , db = Depends(get_db)):
 @task_routes.put("/update/{id}" , response_model=TaskResponseSchema, status_code=status.HTTP_201_CREATED) #the status_code parameter is used to set the status code of the response. In this case, it is set to 200, which means that the request was successful and the response contains the requested data.
 
 
-def update_task( id:int , body : TaskSchema , db : Session = Depends(get_db)):
-    return controller.update_task(id,body,db)   
+def update_task( id:int , body : TaskSchema , db : Session = Depends(get_db), user : UserModel = Depends(is_authenticated)):
+    return controller.update_task(id,body,db,user)   
 
 @task_routes.delete("/delete/{id}",status_code=status.HTTP_204_NO_CONTENT) #the status_code parameter is used to set the status code of the response. In this case, it is set to 204, which means that the request was successful and the response does not contain any content.
 
-def delete_task(id:int , db : Session = Depends(get_db)):
-    return controller.delete_by_id(id,db)
+def delete_task(id:int , db : Session = Depends(get_db) , user : UserModel = Depends(is_authenticated)):
+    return controller.delete_by_id(id,db,user)

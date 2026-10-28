@@ -4,6 +4,7 @@ from src.user.models import UserModel
 from fastapi import HTTPException,status,Request
 from pwdlib import PasswordHash
 from src.utils.settings import settings 
+from src.utils.mail import send_email
 from datetime import datetime, timedelta , timezone  # datetime gives me the current time , timedelta is used to add some time
 import jwt 
 
@@ -16,7 +17,7 @@ def verify_password(plain_password, hashed_password):
     return PasswordHash.verify(plain_password, hashed_password) # use of this is to verify that the plain text password provided by the user during login matches the hashed password stored in the database. The verify() method takes the plain text password and the hashed password as input and returns True if they match, and False otherwise. This is done to ensure that the user is authenticated and authorized to access the application.
 
 
-def register(body : userSchema , db : Session ):
+async def register(body : userSchema , db : Session ):
     found = db.query(UserModel).filter(UserModel.username == body.username).first()
     if found:
         raise HTTPException(status_code=400, detail="Username already exists")
@@ -36,6 +37,16 @@ def register(body : userSchema , db : Session ):
     db.add(user)
     db.commit()
     db.refresh(user) # refresh the user instance to get the updated data from the database, such as the auto-generated id.
+
+
+    #send email to the user after registration
+    res = await send_email([user.email]) 
+    print(res)
+    
+     # print the response from the send_email function to the console. This is useful for debugging purposes, as it allows you to see if the email was sent successfully or if there were any errors. The response is a dictionary that contains a message indicating whether the email was sent successfully or not.
+
+    
+    # send_email function is called with a list containing the user's email address. This function is defined in the src/utils/mail.py file and is responsible for sending an email to the specified recipients. The email is sent asynchronously using FastAPI's background tasks, which allows the registration process to complete without waiting for the email to be sent.
 
     return {"message": "User registered successfully"}
 

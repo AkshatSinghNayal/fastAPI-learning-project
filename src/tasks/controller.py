@@ -53,12 +53,13 @@ def update_task(id: int, body: TaskSchema, db: Session , user: UserModel ):
 
 
 
-def delete_by_id(id: int, db: Session):
+
+def delete_by_id(id: int, db: Session, user : UserModel):
     task = db.query(TaskModel).filter(TaskModel.id == id).first()
 
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-
-    db.delete(task)
-    db.commit()
-    return None 
+    if task and task.user_id == user.id:
+        db.delete(task)
+        db.commit()
+        return None
+    else:
+        raise HTTPException(status_code=404, detail="Task not found or not authorized to delete this task")
